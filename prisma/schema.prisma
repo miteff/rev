@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  password  String
+  name      String
+  projects  Project[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model BlockVariant {
+  id      String @id @default(uuid())
+  name    String
+  type    String // header, content, feature, cta, footer
+  content String @db.Text
+  tags    Tag[]  // Many-to-many relation with tags
+}
+
+model MobileBlockVariant {
+  id      String @id @default(uuid())
+  name    String
+  type    String // header, navigation, content, list, card, form, footer
+  content String @db.Text
+}
+
+model Project {
+  id        String   @id @default(uuid())
+  name      String
+  type      String   // landing, mobile, chatbot, store
+  html      String   @db.Text
+  tags      Tag[]    
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Tag {
+  id          String         @id @default(uuid())
+  name        String         @unique
+  category    String        // industry, purpose, style
+  projectType String        // landing, mobile, chatbot, store
+  projects    Project[]
+  blocks      BlockVariant[] // Many-to-many relation with block variants
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
